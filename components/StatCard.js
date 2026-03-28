@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
-export default function StatCard({ title, value, sub, icon, color = "#D4AF37", sources = [] }) {
+export default function StatCard({ title, value, sub, icon, color = "#a58fff", sources = [] }) {
   // Ensure sources is always an array and filter out nulls
   const safeSources = Array.isArray(sources) ? sources : [sources];
   const uniqueSources = [...new Set(safeSources.filter(Boolean))];
@@ -50,6 +50,6 @@ const styles = StyleSheet.create({
   },
   iconCircle: { padding: 8, borderRadius: 50, marginBottom: 4 },
   value: { color: "#fff", fontSize: 16, fontWeight: "900" },
-  title: { color: "#D4AF37", fontSize: 8, fontWeight: "800", marginTop: 2, letterSpacing: 1 },
+  title: { color: "#a58fff", fontSize: 8, fontWeight: "800", marginTop: 2, letterSpacing: 1 },
   sub: { color: "#444", fontSize: 8, marginTop: 1 },
 });

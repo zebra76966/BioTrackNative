@@ -12,7 +12,7 @@ export default function ActionItem({ action }) {
   return (
     <Pressable style={({ pressed }) => [styles.item, pressed && { backgroundColor: "#1A1A1A" }]}>
       <View style={styles.iconContainer}>
-        <MaterialCommunityIcons name={getIcon(action.category)} size={18} color="#D4AF37" />
+        <MaterialCommunityIcons name={getIcon(action.category)} size={18} color="#a58fff" />
       </View>
 
       <View style={styles.textContainer}>
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: "#D4AF3710",
+    backgroundColor: "#a58fff10",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,

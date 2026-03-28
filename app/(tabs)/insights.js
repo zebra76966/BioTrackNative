@@ -60,7 +60,7 @@ export default function InsightsScreen() {
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#D4AF37" />
+        <ActivityIndicator size="large" color="#a58fff" />
         <Text style={styles.loadingText}>GENERATING AI ANALYSIS...</Text>
       </View>
     );
@@ -68,7 +68,7 @@ export default function InsightsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#D4AF37" />}>
+      <ScrollView contentContainerStyle={styles.scrollContent} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#a58fff" />}>
         {/* Header Section */}
         <View style={styles.header}>
           <View>
@@ -78,7 +78,7 @@ export default function InsightsScreen() {
           <View style={styles.headerActions}>
             {/* Marker Lab Trigger */}
             <TouchableOpacity style={styles.labBtn} onPress={() => setLabVisible(true)}>
-              <MaterialCommunityIcons name="test-tube" size={18} color="#D4AF37" />
+              <MaterialCommunityIcons name="test-tube" size={18} color="#a58fff" />
             </TouchableOpacity>
 
             <View style={styles.aiBadge}>
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#050505" },
   scrollContent: { padding: 20 },
   loaderContainer: { flex: 1, backgroundColor: "#000", justifyContent: "center", alignItems: "center" },
-  loadingText: { color: "#D4AF37", marginTop: 20, fontSize: 10, letterSpacing: 2, fontWeight: "800" },
+  loadingText: { color: "#a58fff", marginTop: 20, fontSize: 10, letterSpacing: 2, fontWeight: "800" },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   aiBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#D4AF37",
+    backgroundColor: "#a58fff",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   },
   aiBadgeText: { color: "#000", fontSize: 9, fontWeight: "900" },
   sectionLabel: {
-    color: "#D4AF37",
+    color: "#a58fff",
     fontSize: 11,
     fontWeight: "800",
     letterSpacing: 1.5,

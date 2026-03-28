@@ -148,7 +148,7 @@ export default function Dashboard() {
               setRefreshing(true);
               fetchAll();
             }}
-            tintColor="#D4AF37"
+            tintColor="#a58fff"
           />
         }
         contentContainerStyle={{ paddingBottom: 40 }}
@@ -164,12 +164,12 @@ export default function Dashboard() {
             <View style={styles.headerActions}>
               <TouchableOpacity style={[styles.actionBtn, syncing && styles.syncingBtn]} onPress={syncActivity} disabled={syncing}>
                 <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                  <MaterialCommunityIcons name="cached" size={22} color={syncing ? "#fff" : "#D4AF37"} />
+                  <MaterialCommunityIcons name="cached" size={22} color={syncing ? "#fff" : "#a58fff"} />
                 </Animated.View>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.profileCircle}>
-                <MaterialCommunityIcons name="shield-check-outline" size={24} color="#D4AF37" />
+                <MaterialCommunityIcons name="shield-check-outline" size={24} color="#a58fff" />
               </TouchableOpacity>
             </View>
           </View>
@@ -266,22 +266,22 @@ const styles = StyleSheet.create({
   padding: { padding: 20 },
   headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 12 },
-  greeting: { color: "#D4AF37", fontSize: 10, letterSpacing: 3, fontWeight: "700" },
+  greeting: { color: "#a58fff", fontSize: 10, letterSpacing: 3, fontWeight: "700" },
   mainTitle: { color: "#fff", fontSize: 32, fontWeight: "900", textTransform: "uppercase" },
 
   actionBtn: { width: 45, height: 45, borderRadius: 23, backgroundColor: "#121212", justifyContent: "center", alignItems: "center", borderWidth: 1, borderColor: "#222" },
-  syncingBtn: { backgroundColor: "#D4AF37", borderColor: "#D4AF37" },
+  syncingBtn: { backgroundColor: "#a58fff", borderColor: "#a58fff" },
   profileCircle: { width: 45, height: 45, borderRadius: 23, backgroundColor: "#121212", justifyContent: "center", alignItems: "center", borderWidth: 1, borderColor: "#222" },
 
   controlsRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 15 },
   toggleContainer: { flexDirection: "row", backgroundColor: "#121212", borderRadius: 12, padding: 4, borderWidth: 1, borderColor: "#222" },
   toggleBtn: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 10 },
-  toggleBtnActive: { backgroundColor: "#D4AF37" },
+  toggleBtnActive: { backgroundColor: "#a58fff" },
   toggleText: { color: "#666", fontSize: 10, fontWeight: "800" },
   toggleTextActive: { color: "#000" },
 
-  prioritySelectorPane: { backgroundColor: "#121212", padding: 12, borderRadius: 12, marginBottom: 20, borderWidth: 1, borderColor: "#D4AF3733" },
-  paneLabel: { color: "#D4AF37", fontSize: 9, fontWeight: "800", letterSpacing: 1, marginBottom: 10, textAlign: "center" },
+  prioritySelectorPane: { backgroundColor: "#121212", padding: 12, borderRadius: 12, marginBottom: 20, borderWidth: 1, borderColor: "#a58fff33" },
+  paneLabel: { color: "#a58fff", fontSize: 9, fontWeight: "800", letterSpacing: 1, marginBottom: 10, textAlign: "center" },
   sourceToggleRow: { flexDirection: "row", gap: 10 },
   sourceBtn: {
     flex: 1,
@@ -295,14 +295,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#222",
   },
-  sourceBtnActive: { backgroundColor: "#D4AF37", borderColor: "#D4AF37" },
+  sourceBtnActive: { backgroundColor: "#a58fff", borderColor: "#a58fff" },
   sourceText: { color: "#666", fontSize: 11, fontWeight: "700" },
   sourceTextActive: { color: "#000" },
 
   grid: { flexDirection: "row", gap: 10, marginBottom: 35 },
   sectionHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 20, alignItems: "center" },
   sectionTitleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  accentBar: { width: 4, height: 16, backgroundColor: "#D4AF37", borderRadius: 2 },
+  accentBar: { width: 4, height: 16, backgroundColor: "#a58fff", borderRadius: 2 },
   sectionTitle: { color: "#fff", fontSize: 13, fontWeight: "800", letterSpacing: 1 },
   viewAll: { color: "#555", fontSize: 10, fontWeight: "700" },
   loaderContainer: { padding: 40, alignItems: "center" },

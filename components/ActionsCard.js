@@ -7,7 +7,7 @@ export default function ActionsCard({ actions = [] }) {
     <View style={styles.card}>
       <View style={styles.header}>
         <View style={styles.titleRow}>
-          <MaterialCommunityIcons name="star-four-points" size={18} color="#D4AF37" />
+          <MaterialCommunityIcons name="star-four-points" size={18} color="#a58fff" />
           <Text style={styles.title}>SUGGESTED ACTIONS</Text>
         </View>
         <View style={styles.aiBadge}>
@@ -44,14 +44,14 @@ const styles = StyleSheet.create({
   titleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   title: { color: "#fff", fontSize: 13, fontWeight: "800", letterSpacing: 1 },
   aiBadge: {
-    backgroundColor: "#D4AF3720",
+    backgroundColor: "#a58fff20",
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
     borderWidth: 0.5,
-    borderColor: "#D4AF3740",
+    borderColor: "#a58fff40",
   },
-  aiBadgeText: { color: "#D4AF37", fontSize: 8, fontWeight: "900" },
+  aiBadgeText: { color: "#a58fff", fontSize: 8, fontWeight: "900" },
   subtitle: { color: "#666", fontSize: 11, marginBottom: 20, lineHeight: 16 },
   list: { gap: 12 },
 });

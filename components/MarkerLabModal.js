@@ -57,7 +57,7 @@ export default function MarkerLabModal({ visible, onClose }) {
                 maximumValue={m.max}
                 step={m.id === "hba1c" ? 0.1 : 1}
                 onValueChange={(val) => handleUpdate(m.id, val)}
-                minimumTrackTintColor="#D4AF37"
+                minimumTrackTintColor="#a58fff"
                 maximumTrackTintColor="#222"
                 thumbTintColor="#fff"
                 trackStyle={{ height: 4, borderRadius: 2 }}
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   control: { marginBottom: 35 },
   labelRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 5, alignItems: "baseline" },
   label: { color: "#666", fontWeight: "800", fontSize: 11, textTransform: "uppercase", letterSpacing: 1 },
-  value: { color: "#D4AF37", fontWeight: "900", fontSize: 20 },
+  value: { color: "#a58fff", fontWeight: "900", fontSize: 20 },
   unit: { color: "#333", fontSize: 12, fontWeight: "700" },
   footer: {
     position: "absolute",
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     borderTopColor: "#111",
   },
   applyBtn: {
-    backgroundColor: "#D4AF37",
+    backgroundColor: "#a58fff",
     padding: 18,
     borderRadius: 16,
     flexDirection: "row",

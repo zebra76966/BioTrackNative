@@ -7,7 +7,7 @@ export default function ConfidenceCard({ confidence }) {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <MaterialCommunityIcons name="shield-check" size={20} color="#D4AF37" />
+        <MaterialCommunityIcons name="shield-check" size={20} color="#a58fff" />
         <Text style={styles.title}>AI CONFIDENCE</Text>
         <View style={styles.percentBadge}>
           <Text style={styles.percentText}>{percent}%</Text>
@@ -30,11 +30,11 @@ export default function ConfidenceCard({ confidence }) {
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: "#111", borderRadius: 16, padding: 16, borderLeftWidth: 4, borderLeftColor: "#D4AF37" },
+  card: { backgroundColor: "#111", borderRadius: 16, padding: 16, borderLeftWidth: 4, borderLeftColor: "#a58fff" },
   header: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
   title: { color: "#fff", fontSize: 12, fontWeight: "800", flex: 1 },
-  percentBadge: { backgroundColor: "#D4AF3720", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 },
-  percentText: { color: "#D4AF37", fontWeight: "900", fontSize: 12 },
+  percentBadge: { backgroundColor: "#a58fff20", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 },
+  percentText: { color: "#a58fff", fontWeight: "900", fontSize: 12 },
   reason: { color: "#888", fontSize: 12, lineHeight: 18, marginBottom: 15 },
   chips: { flexDirection: "row", gap: 10 },
   chip: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "#000", padding: 6, borderRadius: 6 },

@@ -56,7 +56,7 @@ export default function CalendarModal({ visible, onClose, initialDate }) {
                 <View style={styles.modalHeader}>
                   <View style={styles.headerLeft}>
                     <View style={styles.iconBg}>
-                      <MaterialCommunityIcons name="calendar-edit" size={20} color="#D4AF37" />
+                      <MaterialCommunityIcons name="calendar-edit" size={20} color="#a58fff" />
                     </View>
                     <View style={{ marginLeft: 12 }}>
                       <Text style={styles.modalTitle}>New Appointment</Text>
@@ -129,7 +129,7 @@ export default function CalendarModal({ visible, onClose, initialDate }) {
               </>
             ) : (
               <View style={styles.successState}>
-                <MaterialCommunityIcons name="check-decagram" size={60} color="#D4AF37" />
+                <MaterialCommunityIcons name="check-decagram" size={60} color="#a58fff" />
                 <Text style={styles.successTitle}>Appointment Scheduled</Text>
                 <Text style={styles.successSub}>
                   {selectedTags.join(", ")} Clinic: {selectedClinic?.name}
@@ -152,9 +152,9 @@ const styles = StyleSheet.create({
   modalCard: { backgroundColor: "#0F0F0F", borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, borderWidth: 1, borderColor: "#222", height: "85%" },
   modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
   headerLeft: { flexDirection: "row", alignItems: "center" },
-  iconBg: { backgroundColor: "#D4AF3715", padding: 8, borderRadius: 10 },
+  iconBg: { backgroundColor: "#a58fff15", padding: 8, borderRadius: 10 },
   modalTitle: { color: "#fff", fontSize: 18, fontWeight: "800" },
-  mutedText: { color: "#D4AF37", fontSize: 12, fontWeight: "600", textDecorationLine: "underline" },
+  mutedText: { color: "#a58fff", fontSize: 12, fontWeight: "600", textDecorationLine: "underline" },
   closeBtn: { backgroundColor: "#222", padding: 5, borderRadius: 20 },
   label: { color: "#666", fontSize: 10, fontWeight: "900", marginBottom: 12, marginTop: 25, letterSpacing: 1, textTransform: "uppercase" },
   horizontalScroll: { flexDirection: "row", marginBottom: 5 },
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   clinicCard: { width: 120, backgroundColor: "#161616", padding: 15, borderRadius: 20, marginRight: 12, alignItems: "center", borderWidth: 1, borderColor: "#222" },
   clinicLogo: { width: 35, height: 35, marginBottom: 10, borderRadius: 8 },
   clinicName: { color: "#fff", fontSize: 12, fontWeight: "700", textAlign: "center" },
-  selectedGold: { backgroundColor: "#D4AF37", borderColor: "#D4AF37" },
+  selectedGold: { backgroundColor: "#a58fff", borderColor: "#a58fff" },
   blackText: { color: "#000" },
   timeGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   timeSlot: { paddingVertical: 12, borderRadius: 12, backgroundColor: "#161616", borderWidth: 1, borderColor: "#222", width: "31%", alignItems: "center" },
@@ -173,10 +173,10 @@ const styles = StyleSheet.create({
   // CHIP STYLES
   chipGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: "#161616", borderWidth: 1, borderColor: "#222" },
-  selectedChip: { backgroundColor: "#D4AF37", borderColor: "#D4AF37" },
+  selectedChip: { backgroundColor: "#a58fff", borderColor: "#a58fff" },
   chipText: { color: "#888", fontSize: 12, fontWeight: "700" },
 
-  primaryBtn: { backgroundColor: "#D4AF37", padding: 18, borderRadius: 15, marginTop: 30, alignItems: "center" },
+  primaryBtn: { backgroundColor: "#a58fff", padding: 18, borderRadius: 15, marginTop: 30, alignItems: "center" },
   disabledBtn: { backgroundColor: "#222", opacity: 0.5 },
   primaryBtnText: { color: "#000", fontWeight: "800", fontSize: 15 },
   successState: { alignItems: "center", justifyContent: "center", flex: 1 },

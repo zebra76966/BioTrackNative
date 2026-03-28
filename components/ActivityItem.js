@@ -6,7 +6,7 @@ export default function ActivityItem({ session }) {
   const duration = session?.duration_minutes || 0;
 
   const intensity = duration > 45 ? "High" : duration > 25 ? "Moderate" : "Light";
-  const intensityColor = intensity === "High" ? "#FF4500" : intensity === "Moderate" ? "#D4AF37" : "#00BFFF";
+  const intensityColor = intensity === "High" ? "#FF4500" : intensity === "Moderate" ? "#a58fff" : "#00BFFF";
 
   const dateObj = session?.start_time ? new Date(session.start_time) : new Date();
   const formattedDate = dateObj.toLocaleDateString(undefined, { month: "short", day: "numeric" });
@@ -29,7 +29,7 @@ export default function ActivityItem({ session }) {
           </View>
           <Text style={styles.type}>{type}</Text>
           <View style={styles.sourceBadge}>
-            <MaterialCommunityIcons name={source.includes("apple") ? "apple" : "google"} size={10} color="#D4AF37" />
+            <MaterialCommunityIcons name={source.includes("apple") ? "apple" : "google"} size={10} color="#a58fff" />
           </View>
         </View>
 
@@ -45,7 +45,7 @@ export default function ActivityItem({ session }) {
       <View style={styles.right}>
         {/* Added a subtle icon to indicate this is a total duration */}
         <View style={styles.metricRow}>
-          <MaterialCommunityIcons name="clock-outline" size={12} color="#D4AF37" style={{ marginTop: 2 }} />
+          <MaterialCommunityIcons name="clock-outline" size={12} color="#a58fff" style={{ marginTop: 2 }} />
           <Text style={styles.metric}>{duration} min</Text>
         </View>
         <Text style={styles.subMetric}>{calories ? `${Math.round(calories)} kcal` : "-- kcal"}</Text>
@@ -78,6 +78,6 @@ const styles = StyleSheet.create({
   intensityText: { fontSize: 10, fontWeight: "800", textTransform: "uppercase" },
   right: { justifyContent: "center", alignItems: "flex-end" },
   metricRow: { flexDirection: "row", gap: 4, alignItems: "center" },
-  metric: { color: "#D4AF37", fontWeight: "900", fontSize: 16 },
+  metric: { color: "#a58fff", fontWeight: "900", fontSize: 16 },
   subMetric: { color: "#555", fontSize: 11, fontWeight: "600" },
 });

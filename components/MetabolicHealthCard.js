@@ -83,7 +83,7 @@ export default function MetabolicHealthCard({ data }) {
     <View style={styles.card}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <MaterialCommunityIcons name="heart-pulse" size={18} color="#D4AF37" />
+          <MaterialCommunityIcons name="heart-pulse" size={18} color="#a58fff" />
           <View>
             <Text style={styles.title}>METABOLIC STABILITY</Text>
             <Text style={styles.subtitle}>Last 24 hours activity</Text>
@@ -98,8 +98,8 @@ export default function MetabolicHealthCard({ data }) {
       <View style={styles.chartWrapper}>
         <LineChart.Provider data={chartData}>
           <LineChart height={120} width={width - 72}>
-            <LineChart.Path color="#D4AF37" width={3}>
-              <LineChart.Gradient color="#D4AF37" />
+            <LineChart.Path color="#a58fff" width={3}>
+              <LineChart.Gradient color="#a58fff" />
             </LineChart.Path>
 
             {/* Target Range Guide Lines */}
@@ -110,7 +110,7 @@ export default function MetabolicHealthCard({ data }) {
             <LineChart.Dot at={chartData.findIndex((d) => d.value === peakValue)} color="#ef4444" hasPulse />
             <LineChart.Dot at={chartData.findIndex((d) => d.value === lowValue)} color="#3b82f6" />
 
-            <LineChart.CursorCrosshair color="#D4AF37">
+            <LineChart.CursorCrosshair color="#a58fff">
               <LineChart.Tooltip style={styles.tooltip} textStyle={styles.tooltipText} />
               <LineChart.DatetimeText style={styles.datetimeText} />
             </LineChart.CursorCrosshair>
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   legendText: { color: "#444", fontSize: 9, fontWeight: "800" },
   dot: { width: 6, height: 6, borderRadius: 3 },
 
-  tooltip: { backgroundColor: "#D4AF37", borderRadius: 4, padding: 4 },
+  tooltip: { backgroundColor: "#a58fff", borderRadius: 4, padding: 4 },
   tooltipText: { color: "#000", fontSize: 12, fontWeight: "900" },
   datetimeText: { color: "#3191ff", fontSize: 10, fontWeight: "700", marginTop: 10, textAlign: "center" },
 
@@ -187,6 +187,6 @@ const styles = StyleSheet.create({
   emptyIconContainer: { width: 64, height: 64, borderRadius: 32, backgroundColor: "#0A0A0A", justifyContent: "center", alignItems: "center", marginBottom: 16, borderWidth: 1, borderColor: "#1A1A1A" },
   emptyTitle: { color: "#fff", fontSize: 14, fontWeight: "900", letterSpacing: 1, marginBottom: 8 },
   emptySubtitle: { color: "#555", fontSize: 11, textAlign: "center", lineHeight: 18, paddingHorizontal: 20, marginBottom: 25 },
-  connectBtn: { flexDirection: "row", alignItems: "center", backgroundColor: "#D4AF37", paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12, gap: 8 },
+  connectBtn: { flexDirection: "row", alignItems: "center", backgroundColor: "#a58fff", paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12, gap: 8 },
   connectBtnText: { color: "#000", fontSize: 11, fontWeight: "900" },
 });

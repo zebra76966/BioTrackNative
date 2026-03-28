@@ -23,7 +23,7 @@ export default function SimulatedHealthCard({ todaySteps = 8420 }) {
 
   const getStatus = (score) => {
     if (score >= 80) return { label: "Excellent", color: "#4CAF50" };
-    if (score >= 65) return { label: "Good", color: "#D4AF37" };
+    if (score >= 65) return { label: "Good", color: "#a58fff" };
     return { label: "Needs Attention", color: "#FF5252" };
   };
 
@@ -33,7 +33,7 @@ export default function SimulatedHealthCard({ todaySteps = 8420 }) {
     <Animated.View entering={FadeInUp.delay(100)} style={styles.card}>
       <View style={styles.header}>
         <View style={styles.titleRow}>
-          <MaterialCommunityIcons name="heart-pulse" size={20} color="#D4AF37" />
+          <MaterialCommunityIcons name="heart-pulse" size={20} color="#a58fff" />
           <Text style={styles.titleText}>OVERALL HEALTH</Text>
         </View>
         <Text style={[styles.statusBadge, { color: status.color }]}>{status.label}</Text>

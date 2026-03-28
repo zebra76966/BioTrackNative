@@ -61,7 +61,7 @@ export default function HormoneTrendCard() {
             <Text style={styles.subtitle}>{active === "all" ? "OVERVIEW (NORMALIZED %)" : `${activeConfig.label} · ${activeConfig.unit}`}</Text>
           </View>
 
-          <View style={[styles.valBox, { backgroundColor: active === "all" ? "#D4AF37" : activeConfig.color }]}>
+          <View style={[styles.valBox, { backgroundColor: active === "all" ? "#a58fff" : activeConfig.color }]}>
             {/* Base layer: Latest Value */}
             <Text style={styles.valText}>
               <LineChart.PriceText
@@ -130,11 +130,11 @@ const styles = StyleSheet.create({
   valText: { color: "#000", fontWeight: "900", fontSize: 14 },
   filterScroll: { flexDirection: "row", marginBottom: 20 },
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 12, backgroundColor: "#111", marginRight: 8, borderWidth: 1, borderColor: "#222" },
-  chipActive: { backgroundColor: "#D4AF37", borderColor: "#D4AF37" },
+  chipActive: { backgroundColor: "#a58fff", borderColor: "#a58fff" },
   chipText: { color: "#666", fontSize: 10, fontWeight: "800" },
   chipTextActive: { color: "#000" },
   chartWrapper: { marginTop: 10, overflow: "hidden" },
   labelRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 10 },
   label: { color: "#333", fontSize: 9, fontWeight: "800" },
-  latestLabel: { color: "#D4AF37" },
+  latestLabel: { color: "#a58fff" },
 });

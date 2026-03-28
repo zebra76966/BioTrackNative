@@ -129,7 +129,7 @@ export default function UnifiedActivityChart({ data }) {
 const styles = StyleSheet.create({
   container: { backgroundColor: "#121212", borderRadius: 20, padding: 18, marginBottom: 25, borderWidth: 1, borderColor: "#222" },
   header: { flexDirection: "row", justifyContent: "space-between", marginBottom: 20 },
-  title: { color: "#D4AF37", fontSize: 10, fontWeight: "800", letterSpacing: 1.5 },
+  title: { color: "#a58fff", fontSize: 10, fontWeight: "800", letterSpacing: 1.5 },
   subtitle: { color: "#555", fontSize: 9, fontWeight: "700", marginTop: 4 },
   toggleRow: { flexDirection: "row", gap: 8 },
   toggleBtn: { width: 36, height: 36, borderRadius: 10, backgroundColor: "#0a0a0a", justifyContent: "center", alignItems: "center", borderWidth: 1, borderColor: "#222" },

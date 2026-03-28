@@ -22,7 +22,7 @@ export default function OverallHealthCard({ score }) {
               cx="60"
               cy="60"
               r={radius}
-              stroke="#D4AF37"
+              stroke="#a58fff"
               strokeWidth="8"
               fill="none"
               strokeDasharray={circumference}
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   gaugeBox: { width: 120, height: 120, justifyContent: "center", alignItems: "center" },
   scoreOverlay: { position: "absolute", alignItems: "center" },
   scoreText: { color: "#fff", fontSize: 28, fontWeight: "900" },
-  scoreLabel: { color: "#D4AF37", fontSize: 8, fontWeight: "800", letterSpacing: 1 },
+  scoreLabel: { color: "#a58fff", fontSize: 8, fontWeight: "800", letterSpacing: 1 },
   info: { flex: 1 },
   statusTitle: { color: "#fff", fontSize: 16, fontWeight: "700", marginBottom: 4 },
   description: { color: "#666", fontSize: 12, lineHeight: 18 },

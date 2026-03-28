@@ -85,7 +85,7 @@ export default function CheckupSchedule() {
                 </Text>
               </View>
               <View style={styles.statusBadge}>
-                <MaterialCommunityIcons name="check-decagram" size={14} color="#D4AF37" />
+                <MaterialCommunityIcons name="check-decagram" size={14} color="#a58fff" />
               </View>
             </View>
           ))
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 15 },
   title: { color: "#fff", fontSize: 16, fontWeight: "800", letterSpacing: 0.5 },
   subtitle: { color: "#555", fontSize: 11, fontWeight: "600" },
-  showMore: { color: "#D4AF37", fontSize: 11, fontWeight: "700" },
+  showMore: { color: "#a58fff", fontSize: 11, fontWeight: "700" },
   dateRow: { gap: 10, paddingBottom: 15 },
   datePill: {
     backgroundColor: "#121212",
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     borderColor: "#222",
     minWidth: 55,
   },
-  activePill: { backgroundColor: "#D4AF37", borderColor: "#D4AF37" },
+  activePill: { backgroundColor: "#a58fff", borderColor: "#a58fff" },
   dayText: { color: "#666", fontSize: 10, fontWeight: "700", textTransform: "uppercase" },
   dateText: { color: "#fff", fontSize: 16, fontWeight: "900" },
   activeText: { color: "#000" },
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   info: { flex: 1 },
   apptTitle: { color: "#fff", fontSize: 14, fontWeight: "700" },
   apptDoctor: { color: "#888", fontSize: 12 },
-  apptTime: { color: "#D4AF37", fontSize: 11, marginTop: 2, fontWeight: "600" },
+  apptTime: { color: "#a58fff", fontSize: 11, marginTop: 2, fontWeight: "600" },
   statusBadge: { padding: 4 },
   emptyState: {
     padding: 20,

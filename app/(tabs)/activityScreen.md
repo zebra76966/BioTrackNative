@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
+import \* as Haptics from "expo-haptics";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import api from "../../auth/api";
@@ -10,33 +10,33 @@ import StatCard from "../../components/StatCard";
 import UnifiedActivityChart from "../../components/UnifiedActivityChart";
 
 export default function ActivityScreen() {
-  // Renamed from 'range' to 'activeRange' to avoid declaration conflicts
-  const [activeRange, setActiveRange] = useState(7);
-  const [mode, setMode] = useState("smart");
-  const [data, setData] = useState([]);
-  const [sessions, setSessions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState(false);
+// Renamed from 'range' to 'activeRange' to avoid declaration conflicts
+const [activeRange, setActiveRange] = useState(7);
+const [mode, setMode] = useState("smart");
+const [data, setData] = useState([]);
+const [sessions, setSessions] = useState([]);
+const [loading, setLoading] = useState(true);
+const [syncing, setSyncing] = useState(false);
 
-  const [priority, setPriority] = useState({
-    steps: "apple_health",
-    calories: "apple_health",
-    distance: "apple_health",
-  });
+const [priority, setPriority] = useState({
+steps: "apple_health",
+calories: "apple_health",
+distance: "apple_health",
+});
 
-  const fetchActivity = useCallback(async () => {
-    try {
-      setLoading(true);
-      const [mergedRes, sessionsRes] = await Promise.all([
-        api.get(`/activity/merged`, {
-          params: {
-            days: activeRange,
-            mode: mode,
-            priority: JSON.stringify(priority),
-          },
-        }),
-        api.get(`/activity/sessions/${activeRange}`),
-      ]);
+const fetchActivity = useCallback(async () => {
+try {
+setLoading(true);
+const [mergedRes, sessionsRes] = await Promise.all([
+api.get(`/activity/merged`, {
+params: {
+days: activeRange,
+mode: mode,
+priority: JSON.stringify(priority),
+},
+}),
+api.get(`/activity/sessions/${activeRange}`),
+]);
 
       setData(mergedRes.data);
       setSessions(sessionsRes.data);
@@ -45,39 +45,40 @@ export default function ActivityScreen() {
     } finally {
       setLoading(false);
     }
-  }, [activeRange, mode, priority]);
 
-  const syncActivity = async () => {
-    setSyncing(true);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    try {
-      await api.post("/sync/manual", { days: activeRange });
-      fetchActivity();
-    } catch (e) {
-      Alert.alert("Sync Failed", "Could not refresh health data.");
-    } finally {
-      setSyncing(false);
-    }
-  };
+}, [activeRange, mode, priority]);
 
-  useEffect(() => {
-    fetchActivity();
-  }, [fetchActivity]);
+const syncActivity = async () => {
+setSyncing(true);
+Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+try {
+await api.post("/sync/manual", { days: activeRange });
+fetchActivity();
+} catch (e) {
+Alert.alert("Sync Failed", "Could not refresh health data.");
+} finally {
+setSyncing(false);
+}
+};
 
-  const today = data[data.length - 1];
-  const avgSteps = data.length > 0 ? Math.round(data.reduce((s, d) => s + d.steps, 0) / data.length) : 0;
+useEffect(() => {
+fetchActivity();
+}, [fetchActivity]);
 
-  return (
-    <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={syncing || loading} onRefresh={syncActivity} tintColor="#D4AF37" />}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>ACTIVITY</Text>
-          <Text style={styles.subtitle}>Track your movement patterns</Text>
-        </View>
-        <TouchableOpacity style={styles.syncBtn} onPress={syncActivity} disabled={syncing}>
-          <MaterialCommunityIcons name="cached" size={20} color="#D4AF37" />
-        </TouchableOpacity>
-      </View>
+const today = data[data.length - 1];
+const avgSteps = data.length > 0 ? Math.round(data.reduce((s, d) => s + d.steps, 0) / data.length) : 0;
+
+return (
+<ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={syncing || loading} onRefresh={syncActivity} tintColor="#a58fff" />}>
+<View style={styles.header}>
+<View>
+<Text style={styles.title}>ACTIVITY</Text>
+<Text style={styles.subtitle}>Track your movement patterns</Text>
+</View>
+<TouchableOpacity style={styles.syncBtn} onPress={syncActivity} disabled={syncing}>
+<MaterialCommunityIcons name="cached" size={20} color="#a58fff" />
+</TouchableOpacity>
+</View>
 
       {/* Range & Mode Toggles */}
       <View style={styles.toggleRow}>
@@ -137,7 +138,7 @@ export default function ActivityScreen() {
           color="#27ae60"
           sources={today?.chosenSource?.steps ? [today.chosenSource.steps] : today?.sources}
         />
-        <StatCard title="Average" value={avgSteps.toLocaleString()} icon="trending-up" unit="steps/day" color="#D4AF37" />
+        <StatCard title="Average" value={avgSteps.toLocaleString()} icon="trending-up" unit="steps/day" color="#a58fff" />
         <StatCard
           title="Burn"
           value={`${Math.round(today?.calories || 0)}`}
@@ -158,48 +159,49 @@ export default function ActivityScreen() {
 
       <View style={{ height: 100 }} />
     </ScrollView>
-  );
+
+);
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000", paddingHorizontal: 16 },
-  header: { marginTop: 60, flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
-  title: { fontSize: 24, fontWeight: "900", color: "#fff", letterSpacing: 1 },
-  subtitle: { fontSize: 12, color: "#666", fontWeight: "600" },
-  syncBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#111", justifyContent: "center", alignItems: "center", borderWidth: 1, borderColor: "#222" },
+container: { flex: 1, backgroundColor: "#000", paddingHorizontal: 16 },
+header: { marginTop: 60, flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
+title: { fontSize: 24, fontWeight: "900", color: "#fff", letterSpacing: 1 },
+subtitle: { fontSize: 12, color: "#666", fontWeight: "600" },
+syncBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#111", justifyContent: "center", alignItems: "center", borderWidth: 1, borderColor: "#222" },
 
-  toggleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
-  leftToggles: { flexDirection: "row", gap: 8 },
-  toggleBtn: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20, backgroundColor: "#111", borderWidth: 1, borderColor: "#222" },
-  activeToggle: { borderColor: "#D4AF37", backgroundColor: "#D4AF3722" },
-  toggleText: { color: "#666", fontSize: 10, fontWeight: "bold" },
-  activeToggleText: { color: "#D4AF37" },
+toggleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
+leftToggles: { flexDirection: "row", gap: 8 },
+toggleBtn: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20, backgroundColor: "#111", borderWidth: 1, borderColor: "#222" },
+activeToggle: { borderColor: "#a58fff", backgroundColor: "#a58fff22" },
+toggleText: { color: "#666", fontSize: 10, fontWeight: "bold" },
+activeToggleText: { color: "#a58fff" },
 
-  modeToggleGroup: { flexDirection: "row", backgroundColor: "#111", borderRadius: 20, padding: 2, borderWidth: 1, borderColor: "#222" },
-  modeBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 18 },
-  activeModeBtn: { backgroundColor: "#D4AF37" },
-  modeText: { color: "#666", fontSize: 9, fontWeight: "900" },
-  activeModeText: { color: "#000" },
+modeToggleGroup: { flexDirection: "row", backgroundColor: "#111", borderRadius: 20, padding: 2, borderWidth: 1, borderColor: "#222" },
+modeBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 18 },
+activeModeBtn: { backgroundColor: "#a58fff" },
+modeText: { color: "#666", fontSize: 9, fontWeight: "900" },
+activeModeText: { color: "#000" },
 
-  prioritySelectorPane: { backgroundColor: "#111", padding: 12, borderRadius: 12, marginBottom: 20, borderWidth: 1, borderColor: "#D4AF3733" },
-  paneLabel: { color: "#D4AF37", fontSize: 9, fontWeight: "800", letterSpacing: 1, marginBottom: 10, textAlign: "center" },
-  sourceToggleRow: { flexDirection: "row", gap: 10 },
-  sourceBtn: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 6,
-    paddingVertical: 10,
-    backgroundColor: "#000",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#222",
-  },
-  sourceBtnActive: { backgroundColor: "#D4AF37", borderColor: "#D4AF37" },
-  sourceText: { color: "#666", fontSize: 11, fontWeight: "700" },
-  sourceTextActive: { color: "#000" },
+prioritySelectorPane: { backgroundColor: "#111", padding: 12, borderRadius: 12, marginBottom: 20, borderWidth: 1, borderColor: "#a58fff33" },
+paneLabel: { color: "#a58fff", fontSize: 9, fontWeight: "800", letterSpacing: 1, marginBottom: 10, textAlign: "center" },
+sourceToggleRow: { flexDirection: "row", gap: 10 },
+sourceBtn: {
+flex: 1,
+flexDirection: "row",
+justifyContent: "center",
+alignItems: "center",
+gap: 6,
+paddingVertical: 10,
+backgroundColor: "#000",
+borderRadius: 8,
+borderWidth: 1,
+borderColor: "#222",
+},
+sourceBtnActive: { backgroundColor: "#a58fff", borderColor: "#a58fff" },
+sourceText: { color: "#666", fontSize: 11, fontWeight: "700" },
+sourceTextActive: { color: "#000" },
 
-  statsGrid: { flexDirection: "row", justifyContent: "space-between", marginBottom: 20, gap: 8 },
-  sectionTitle: { color: "#fff", fontSize: 14, fontWeight: "800", letterSpacing: 1, marginTop: 25, marginBottom: 15 },
+statsGrid: { flexDirection: "row", justifyContent: "space-between", marginBottom: 20, gap: 8 },
+sectionTitle: { color: "#fff", fontSize: 14, fontWeight: "800", letterSpacing: 1, marginTop: 25, marginBottom: 15 },
 });
