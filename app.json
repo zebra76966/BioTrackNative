@@ -51,7 +51,14 @@
           }
         }
       ],
-      "react-native-health",
+      [
+        "react-native-health",
+        {
+          "healthSharePermission": "Allow Biotrack to read your health data for metabolic insights.",
+          "healthUpdatePermission": "Allow Biotrack to sync your data with the system.",
+          "isClinicalDataEnabled": false
+        }
+      ],
       "expo-secure-store"
     ],
     "experiments": {
