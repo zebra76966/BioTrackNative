@@ -57,6 +57,8 @@ export function getWorkouts(days = 7) {
 
 /** * 📊 Aggregates daily biometric data (Steps, Calories, Distance).
  */
+/** * 📊 Aggregates daily biometric data (Steps, Calories, Distance).
+ */
 export async function getHealthData(days = 7) {
   const end = new Date();
   const start = new Date();
@@ -68,17 +70,19 @@ export async function getHealthData(days = 7) {
   };
 
   try {
-    // Fetch all core metrics in parallel for speed
+    // FIX: Changed getDailyActiveEnergyBurnedSamples to getActiveEnergyBurned
+    // FIX: Changed getDailyDistanceWalkingRunningSamples to getDistanceWalkingRunning
     const [stepsRes, activeEnergyRes, distanceRes] = await Promise.all([
       new Promise((res) => AppleHealthKit.getDailyStepCountSamples(options, (err, r) => res(r || []))),
-      new Promise((res) => AppleHealthKit.getDailyActiveEnergyBurnedSamples(options, (err, r) => res(r || []))),
-      new Promise((res) => AppleHealthKit.getDailyDistanceWalkingRunningSamples(options, (err, r) => res(r || []))),
+      new Promise((res) => AppleHealthKit.getActiveEnergyBurned(options, (err, r) => res(r || []))),
+      new Promise((res) => AppleHealthKit.getDistanceWalkingRunning(options, (err, r) => res(r || []))),
     ]);
 
     const grouped = {};
 
     // Helper to group by ISO Date (YYYY-MM-DD)
     const addToGroup = (samples, key) => {
+      if (!Array.isArray(samples)) return; // Safety check
       samples.forEach((s) => {
         const date = s.startDate.split("T")[0];
         if (!grouped[date]) grouped[date] = { steps: 0, calories: 0, distance: 0 };

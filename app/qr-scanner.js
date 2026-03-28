@@ -1,72 +1,75 @@
+import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Animated, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Animated, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import api from "../auth/api";
-import { syncAppleHealth } from "../services/appleHealth";
+import { initAppleHealth, syncAppleHealth } from "../services/appleHealth";
 
 export default function QRScanner() {
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [loading, setLoading] = useState(false);
+  const scanLine = useRef(new Animated.Value(0)).current;
+  const scanLock = useRef(false);
 
   useEffect(() => {
     if (!permission) requestPermission();
-  }, [permission]);
 
-  const scanLine = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
     Animated.loop(
       Animated.timing(scanLine, {
         toValue: 1,
-        duration: 1800,
+        duration: 2000,
         useNativeDriver: true,
       }),
     ).start();
-  }, []);
-
-  const scanLock = useRef(false);
+  }, [permission]);
 
   const handleScan = async ({ data }) => {
-    if (scanLock.current) return;
+    if (scanLock.current || !data) return;
 
-    if (!data.startsWith("iosbiotrackconnector://auth")) return;
+    // 1. Identify the token
+    let token = null;
 
-    scanLock.current = true; // 🔒 HARD LOCK
+    if (data.includes("token=")) {
+      // Case: Data is a full URL (e.g., iosbiotrackconnector://auth?token=XYZ)
+      token = data.split("token=")[1]?.split("&")[0];
+    } else if (data.length > 30 && !data.includes(" ")) {
+      // Case: Data is the raw 32-character hex token itself
+      token = data;
+    }
+
+    if (!token) return; // Not a valid BioTrack QR, keep scanning
+
+    scanLock.current = true;
     setScanned(true);
-
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
     try {
       setLoading(true);
 
-      const url = new URL(data);
-      const token = url.searchParams.get("token");
-
-      if (!token) throw new Error("Invalid QR");
-
+      // 2. Exchange token for JWT
       const res = await api.post("/auth/qr/exchange", { token });
-
       const { jwt, user } = res.data;
 
-      await SecureStore.setItemAsync("jwt", jwt);
-      await SecureStore.setItemAsync("user", JSON.stringify(user));
-
+      // 3. Update Local Storage & API Header
+      // await SecureStore.setItemAsync("jwt", jwt);
+      // await SecureStore.setItemAsync("user", JSON.stringify(user));
       api.defaults.headers.Authorization = `Bearer ${jwt}`;
 
+      // 4. THE SYNC LOGIC
+      // We must init to get permissions, then sync to push data to backend
+      await initAppleHealth();
       await syncAppleHealth(7);
 
-      router.replace("/success");
+      router.replace("/(tabs)/profile");
     } catch (e) {
-      console.log("QR ERROR:", e?.response?.data || e.message);
+      console.error("QR Sync Logic Error:", e.message);
+      alert("Sync failed. The token may be expired (60s limit).");
 
-      alert("Connection failed: " + (e?.response?.data?.error || e.message || "Unknown error"));
-
-      // 🔥 DO NOT instantly unlock → delay it
+      // Unlock after delay to allow re-scanning
       setTimeout(() => {
         scanLock.current = false;
         setScanned(false);
@@ -76,68 +79,100 @@ export default function QRScanner() {
     }
   };
 
-  if (!permission) return null;
-
-  if (!permission.granted) {
+  if (!permission?.granted) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Camera permission required</Text>
-        <TouchableOpacity onPress={requestPermission}>
-          <Text>Allow Camera</Text>
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>Camera Access Required</Text>
+        <TouchableOpacity style={styles.btn} onPress={requestPermission}>
+          <Text style={styles.btnText}>Enable Camera</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <CameraView style={{ flex: 1 }} facing="back" barcodeScannerSettings={{ barcodeTypes: ["qr"] }} onBarcodeScanned={handleScan} />
+    <View style={styles.container}>
+      <CameraView style={StyleSheet.absoluteFillObject} facing="back" barcodeScannerSettings={{ barcodeTypes: ["qr"] }} onBarcodeScanned={handleScan} />
 
-      {/* 🔥 PREMIUM OVERLAY */}
-      {/* <BlurView intensity={40} tint="dark" style={{ ...StyleSheet.absoluteFillObject }} /> */}
+      {/* BACK BUTTON */}
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Ionicons name="arrow-back" size={24} color="#fff" />
+      </TouchableOpacity>
 
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        {/* FRAME */}
-        <View
-          style={{
-            width: 260,
-            height: 260,
-            borderRadius: 20,
-            borderWidth: 2,
-            borderColor: "#22c55e",
-            overflow: "hidden",
-          }}
-        >
-          {/* SCAN LINE */}
+      <View style={styles.overlay}>
+        <View style={styles.frame}>
           <Animated.View
-            style={{
-              height: 2,
-              width: "100%",
-              backgroundColor: "#22c55e",
-              transform: [
-                {
-                  translateY: scanLine.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, 260],
-                  }),
-                },
-              ],
-            }}
+            style={[
+              styles.scanLine,
+              {
+                transform: [
+                  {
+                    translateY: scanLine.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 260],
+                    }),
+                  },
+                ],
+              },
+            ]}
           />
         </View>
 
-        <Text style={{ color: "#fff", marginTop: 20, fontSize: 16 }}>Scan BioTrack QR</Text>
-
-        <Text style={{ color: "#94a3b8", marginTop: 6 }}>Connect your iPhone securely</Text>
+        <Text style={styles.hintTitle}>BioTrack Terminal Sync</Text>
+        <Text style={styles.hintSub}>Align QR code within the frame</Text>
       </View>
 
-      {/* LOADING */}
       {loading && (
-        <View style={{ position: "absolute", bottom: 120, width: "100%", alignItems: "center" }}>
-          <ActivityIndicator size="large" color="#22c55e" />
-          <Text style={{ color: "#fff", marginTop: 8 }}>Connecting...</Text>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#a58fff" />
+          <Text style={styles.loadingText}>Establishing Secure Link...</Text>
         </View>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#000" },
+  centered: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#000" },
+  backButton: {
+    position: "absolute",
+    top: 60,
+    left: 20,
+    zIndex: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  overlay: { flex: 1, justifyContent: "center", alignItems: "center" },
+  frame: {
+    width: 260,
+    height: 260,
+    borderRadius: 30,
+    borderWidth: 2,
+    borderColor: "#a58fff",
+    backgroundColor: "rgba(165, 143, 255, 0.05)",
+    overflow: "hidden",
+  },
+  scanLine: {
+    height: 3,
+    width: "100%",
+    backgroundColor: "#a58fff",
+    shadowColor: "#a58fff",
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  hintTitle: { color: "#fff", marginTop: 30, fontSize: 18, fontWeight: "800", letterSpacing: 1 },
+  hintSub: { color: "#a58fff", marginTop: 8, fontSize: 12, fontWeight: "600", textTransform: "uppercase" },
+  loadingContainer: { position: "absolute", bottom: 100, width: "100%", alignItems: "center" },
+  loadingText: { color: "#a58fff", marginTop: 12, fontWeight: "700", fontSize: 14 },
+  errorText: { color: "#fff", marginBottom: 20 },
+  btn: { padding: 15, backgroundColor: "#a58fff", borderRadius: 12 },
+  btnText: { fontWeight: "bold" },
+});

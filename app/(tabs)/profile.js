@@ -5,9 +5,8 @@ import * as WebBrowser from "expo-web-browser";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import api from "../../auth/api";
-import { syncAppleHealth } from "../../services/appleHealth";
+import { initAppleHealth, syncAppleHealth } from "../../services/appleHealth";
 
-// Replace with your actual production/dev backend URL
 const BACKEND_URL = "http://api.forge.ngo";
 
 export default function ProfileScreen() {
@@ -47,33 +46,23 @@ export default function ProfileScreen() {
   const runAppleSync = async () => {
     setIsSyncing(true);
     try {
+      await initAppleHealth();
       await syncAppleHealth(7);
-      await api.post("/devices/apple/connect");
       fetchDeviceStatus();
       Alert.alert("Protocol Updated", "Apple Health biometrics synchronized.");
     } catch (e) {
-      Alert.alert("Sync Failed", "Check HealthKit permissions.");
+      Alert.alert("Sync Failed", "Check HealthKit permissions in iOS Settings.");
     } finally {
       setIsSyncing(false);
     }
   };
 
-  /**
-   * 🔐 Direct OAuth Connection Handler
-   * Opens a secure browser to handle the OAuth flow via your backend
-   */
   const handleDirectConnect = async (provider) => {
     const token = await SecureStore.getItemAsync("jwt");
-
-    // Construct the OAuth initiation URL on your backend
-    // We pass the JWT so the backend knows which user is connecting
-
     const authUrl = `${BACKEND_URL}/auth/${provider}/?token=${token}&platform=mobile`;
 
     try {
       const result = await WebBrowser.openAuthSessionAsync(authUrl, "iosbiotrackconnector://");
-
-      // Refresh status after the user returns from the browser
       if (result.type === "success") {
         fetchDeviceStatus();
         Alert.alert("Link Request Sent", `System is verifying ${provider} credentials.`);
@@ -90,7 +79,6 @@ export default function ProfileScreen() {
         <Text style={styles.headerSubtitle}>Hardware & Operative Profile</Text>
       </View>
 
-      {/* Profile Header */}
       <View style={styles.profileSection}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{user?.name?.charAt(0) || "U"}</Text>
@@ -106,7 +94,7 @@ export default function ProfileScreen() {
           {loadingStatus && <ActivityIndicator size="small" color="#a58fff" />}
         </View>
 
-        {/* Apple Health (Native) */}
+        {/* Apple Health */}
         <TouchableOpacity style={[styles.menuItem, deviceStatus.apple && styles.activeBorder]} onPress={runAppleSync} disabled={isSyncing}>
           <View style={styles.menuLeft}>
             <View style={[styles.iconBox, { backgroundColor: "#fff" }]}>
@@ -120,7 +108,24 @@ export default function ProfileScreen() {
           {isSyncing ? <ActivityIndicator size="small" color="#a58fff" /> : <MaterialIcons name="sync" size={20} color={deviceStatus.apple ? "#a58fff" : "#333"} />}
         </TouchableOpacity>
 
-        {/* Google Fit (OAuth) */}
+        {/* QR Scanner Connection */}
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push("/qr-scanner")} // Ensure this matches your file path
+        >
+          <View style={styles.menuLeft}>
+            <View style={[styles.iconBox, { backgroundColor: "#a58fff" }]}>
+              <MaterialCommunityIcons name="qrcode-scan" size={18} color="#000" />
+            </View>
+            <View>
+              <Text style={styles.menuText}>Apple Terminal Sync</Text>
+              <Text style={styles.statusSubtext}>SCAN WEBAPP QR CODE</Text>
+            </View>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color="#444" />
+        </TouchableOpacity>
+
+        {/* Google Fit */}
         <TouchableOpacity style={[styles.menuItem, deviceStatus.googlefit && styles.activeBorder]} onPress={() => handleDirectConnect("google")}>
           <View style={styles.menuLeft}>
             <View style={[styles.iconBox, { backgroundColor: "#4285F4" }]}>
@@ -134,7 +139,7 @@ export default function ProfileScreen() {
           <Ionicons name={deviceStatus.googlefit ? "checkmark-circle" : "add-circle-outline"} size={20} color={deviceStatus.googlefit ? "#a58fff" : "#444"} />
         </TouchableOpacity>
 
-        {/* Dexcom (OAuth) */}
+        {/* Dexcom */}
         <TouchableOpacity style={[styles.menuItem, deviceStatus.dexcom && styles.activeBorder]} onPress={() => handleDirectConnect("dexcom")}>
           <View style={styles.menuLeft}>
             <View style={[styles.iconBox, { backgroundColor: "#FF8C00" }]}>
@@ -163,7 +168,6 @@ export default function ProfileScreen() {
     </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000", paddingTop: 60 },
   header: { paddingHorizontal: 25, marginBottom: 30 },
