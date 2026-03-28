@@ -9,7 +9,13 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.zebra76966.iosbiotrackconnector",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSHealthShareUsageDescription": "BioTrack reads your health data to show activity insights.",
+        "NSHealthUpdateUsageDescription": "BioTrack may write health insights when authorized."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +25,9 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.zebra76966.iosbiotrackconnector",
+      "permissions": ["android.permission.CAMERA", "android.permission.CAMERA"]
     },
     "web": {
       "output": "static",
@@ -38,11 +46,25 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "react-native-health",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "9dc9c9c0-b4fe-4e1a-9fbe-6d1e142e9a31"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/9dc9c9c0-b4fe-4e1a-9fbe-6d1e142e9a31"
     }
   }
 }
