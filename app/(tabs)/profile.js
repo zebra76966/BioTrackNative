@@ -1,8 +1,8 @@
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import * as WebBrowser from "expo-web-browser";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Alert, Animated, Dimensions, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import api from "../../auth/api";
 import { initAppleHealth, syncAppleHealth } from "../../services/appleHealth";
@@ -140,6 +140,12 @@ export default function ProfileScreen() {
     }
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchDeviceStatus();
+    }, [fetchDeviceStatus]),
+  );
+
   const handleLogout = async () => {
     await SecureStore.deleteItemAsync("jwt");
     await SecureStore.deleteItemAsync("user");
@@ -227,35 +233,35 @@ export default function ProfileScreen() {
         </View>
 
         {/* Apple Health */}
-        <TouchableOpacity style={[styles.menuItem, deviceStatus.apple && styles.activeBorder]} onPress={runAppleSync} disabled={isSyncing}>
-          <View style={styles.menuLeft}>
-            <View style={[styles.iconBox, { backgroundColor: "#fff" }]}>
-              <Ionicons name="logo-apple" size={18} color="#000" />
+        {Platform.OS === "ios" && (
+          <TouchableOpacity style={[styles.menuItem, deviceStatus.apple && styles.activeBorder]} onPress={runAppleSync} disabled={isSyncing}>
+            <View style={styles.menuLeft}>
+              <View style={[styles.iconBox, { backgroundColor: "#fff" }]}>
+                <Ionicons name="logo-apple" size={18} color="#000" />
+              </View>
+              <View>
+                <Text style={styles.menuText}>Apple Health</Text>
+                <Text style={styles.statusSubtext}>{deviceStatus.apple ? "ACTIVE PROTOCOL" : "UNLINKED"}</Text>
+              </View>
             </View>
-            <View>
-              <Text style={styles.menuText}>Apple Health</Text>
-              <Text style={styles.statusSubtext}>{deviceStatus.apple ? "ACTIVE PROTOCOL" : "UNLINKED"}</Text>
-            </View>
-          </View>
-          {isSyncing ? <ActivityIndicator size="small" color="#a58fff" /> : <MaterialIcons name="sync" size={20} color={deviceStatus.apple ? "#a58fff" : "#333"} />}
-        </TouchableOpacity>
+            {isSyncing ? <ActivityIndicator size="small" color="#a58fff" /> : <MaterialIcons name="sync" size={20} color={deviceStatus.apple ? "#a58fff" : "#333"} />}
+          </TouchableOpacity>
+        )}
 
         {/* Google Fit */}
 
-        {Platform.OS === "ios" && (
-          <TouchableOpacity style={[styles.menuItem, deviceStatus.googlefit && styles.activeBorder]} onPress={() => handleDirectConnect("google")}>
-            <View style={styles.menuLeft}>
-              <View style={[styles.iconBox, { backgroundColor: "#4285F4" }]}>
-                <Ionicons name="logo-google" size={16} color="#fff" />
-              </View>
-              <View>
-                <Text style={styles.menuText}>Google Cloud Fit</Text>
-                <Text style={styles.statusSubtext}>{deviceStatus.googlefit ? "CONNECTED" : "ESTABLISH LINK"}</Text>
-              </View>
+        <TouchableOpacity style={[styles.menuItem, deviceStatus.googlefit && styles.activeBorder]} onPress={() => handleDirectConnect("google")}>
+          <View style={styles.menuLeft}>
+            <View style={[styles.iconBox, { backgroundColor: "#4285F4" }]}>
+              <Ionicons name="logo-google" size={16} color="#fff" />
             </View>
-            <Ionicons name={deviceStatus.googlefit ? "checkmark-circle" : "add-circle-outline"} size={20} color={deviceStatus.googlefit ? "#a58fff" : "#444"} />
-          </TouchableOpacity>
-        )}
+            <View>
+              <Text style={styles.menuText}>Google Cloud Fit</Text>
+              <Text style={styles.statusSubtext}>{deviceStatus.googlefit ? "CONNECTED" : "ESTABLISH LINK"}</Text>
+            </View>
+          </View>
+          <Ionicons name={deviceStatus.googlefit ? "checkmark-circle" : "add-circle-outline"} size={20} color={deviceStatus.googlefit ? "#a58fff" : "#444"} />
+        </TouchableOpacity>
 
         {/* Fitbit Integration */}
         <TouchableOpacity style={[styles.menuItem, deviceStatus.fitbit && styles.activeBorder]} onPress={() => handleDirectConnect("fitbit")}>
@@ -300,18 +306,20 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
         {/* QR Scanner Connection */}
-        <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/qr-scanner")}>
-          <View style={styles.menuLeft}>
-            <View style={[styles.iconBox, { backgroundColor: "#a58fff" }]}>
-              <MaterialCommunityIcons name="qrcode-scan" size={18} color="#000" />
+        {Platform.OS === "ios" && (
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/qr-scanner")}>
+            <View style={styles.menuLeft}>
+              <View style={[styles.iconBox, { backgroundColor: "#a58fff" }]}>
+                <MaterialCommunityIcons name="qrcode-scan" size={18} color="#000" />
+              </View>
+              <View>
+                <Text style={styles.menuText}>Apple Terminal Sync</Text>
+                <Text style={styles.statusSubtext}>SCAN WEBAPP QR CODE</Text>
+              </View>
             </View>
-            <View>
-              <Text style={styles.menuText}>Apple Terminal Sync</Text>
-              <Text style={styles.statusSubtext}>SCAN WEBAPP QR CODE</Text>
-            </View>
-          </View>
-          <Ionicons name="chevron-forward" size={18} color="#444" />
-        </TouchableOpacity>
+            <Ionicons name="chevron-forward" size={18} color="#444" />
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.section}>

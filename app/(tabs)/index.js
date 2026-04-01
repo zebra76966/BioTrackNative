@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Animated, Easing, Modal, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Animated, Easing, Modal, Platform, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import api from "../../auth/api";
 import ActivityItem from "../../components/ActivityItem";
@@ -15,6 +15,7 @@ import OuraRecoveryCard from "../../components/OuraRecoveryCard";
 import { syncAppleHealth } from "../../services/appleHealth";
 
 export default function Dashboard() {
+  console.log("Rendering Insights Screen", Platform.OS);
   const router = useRouter();
   const [range, setRange] = useState(7);
   const [mode, setMode] = useState("smart");
@@ -80,8 +81,8 @@ export default function Dashboard() {
       setSyncing(true);
       startSpin();
 
-      await syncAppleHealth(range);
-      await api.post("/sync/manual", { days: range });
+      await syncAppleHealth(range === 1 ? 7 : range); // Sync Apple Health first to ensure we have the latest data, especially for Oura which relies on it
+      await api.post("/sync/manual", { days: range === 1 ? 7 : range });
 
       const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       await SecureStore.setItemAsync("last_sync_timestamp", now);
