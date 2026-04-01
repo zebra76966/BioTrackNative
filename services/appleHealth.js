@@ -19,6 +19,7 @@ export function initAppleHealth() {
     AppleHealthKit.initHealthKit(permissions, (err) => {
       if (err) return reject(err);
       resolve();
+      console.log("Apple HealthKit initialized successfully with permissions:", permissions);
     });
   });
 }
@@ -57,36 +58,63 @@ export function getWorkouts(days = 7) {
 
 /** * 📊 Aggregates daily biometric data (Steps, Calories, Distance).
  */
-/** * 📊 Aggregates daily biometric data (Steps, Calories, Distance).
- */
+
 export async function getHealthData(days = 7) {
   const end = new Date();
   const start = new Date();
   start.setDate(end.getDate() - days);
 
-  const options = {
+  // Separate options because different methods expect different keys
+  const dailyOptions = {
     startDate: start.toISOString(),
     endDate: end.toISOString(),
   };
 
+  const sampleOptions = {
+    startDate: start.toISOString(),
+    endDate: end.toISOString(),
+    unit: "kilocalorie", // Explicit unit for energy
+    distanceUnit: "meter", // Explicit unit for distance
+  };
+
   try {
-    // FIX: Changed getDailyActiveEnergyBurnedSamples to getActiveEnergyBurned
-    // FIX: Changed getDailyDistanceWalkingRunningSamples to getDistanceWalkingRunning
     const [stepsRes, activeEnergyRes, distanceRes] = await Promise.all([
-      new Promise((res) => AppleHealthKit.getDailyStepCountSamples(options, (err, r) => res(r || []))),
-      new Promise((res) => AppleHealthKit.getActiveEnergyBurned(options, (err, r) => res(r || []))),
-      new Promise((res) => AppleHealthKit.getDistanceWalkingRunning(options, (err, r) => res(r || []))),
+      new Promise((res) => AppleHealthKit.getDailyStepCountSamples(dailyOptions, (err, r) => res(r || []))),
+
+      // Use the 'Samples' version if available, otherwise getActiveEnergyBurned
+      new Promise((res) => AppleHealthKit.getActiveEnergyBurned(sampleOptions, (err, r) => res(r || []))),
+
+      // CRITICAL: Try the 'Daily...Samples' version first as it's more reliable for totals
+      new Promise((res) =>
+        AppleHealthKit.getDailyDistanceWalkingRunningSamples(sampleOptions, (err, r) => {
+          if (err || !r || r.length === 0) {
+            // Fallback to raw samples if daily totals fail
+            AppleHealthKit.getDistanceWalkingRunning(sampleOptions, (err2, r2) => res(r2 || []));
+          } else {
+            res(r);
+          }
+        }),
+      ),
     ]);
+
+    // DEBUG LOGS - Check your console to see which one is actually returning data
+    console.log(`[HealthKit] Steps: ${stepsRes.length}, Energy: ${activeEnergyRes.length}, Distance: ${distanceRes.length}`);
 
     const grouped = {};
 
-    // Helper to group by ISO Date (YYYY-MM-DD)
     const addToGroup = (samples, key) => {
-      if (!Array.isArray(samples)) return; // Safety check
+      if (!Array.isArray(samples)) return;
       samples.forEach((s) => {
-        const date = s.startDate.split("T")[0];
+        // Some samples use 'startDate', some use 'endDate', some just 'date'
+        const rawDate = s.startDate || s.endDate || s.date;
+        if (!rawDate) return;
+
+        const date = rawDate.split("T")[0];
         if (!grouped[date]) grouped[date] = { steps: 0, calories: 0, distance: 0 };
-        grouped[date][key] += s.value || 0;
+
+        // s.value is standard, but check for s.quantity just in case
+        const val = s.value ?? s.quantity ?? 0;
+        grouped[date][key] += val;
       });
     };
 
@@ -98,12 +126,11 @@ export async function getHealthData(days = 7) {
       date,
       steps: Math.round(val.steps),
       calories: Math.round(val.calories),
-      distance: parseFloat(val.distance.toFixed(2)),
+      distance: parseFloat(val.distance.toFixed(2)), // Should now show meters
       source: "apple_health",
     }));
 
     const sessions = await getWorkouts(days);
-
     return { daily, sessions };
   } catch (error) {
     console.error("Critical Biometric Retrieval Error:", error);

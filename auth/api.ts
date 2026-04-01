@@ -3,6 +3,7 @@ import * as SecureStore from "expo-secure-store";
 
 // 💡 TIP: Change this IP whenever your computer's local IP changes
 const BASE_URL = "https://api.forge.ngo";
+// const BASE_URL = "http://192.168.1.2:5000";
 
 const api = axios.create({
   baseURL: BASE_URL,

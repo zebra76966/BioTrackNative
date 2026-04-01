@@ -1,12 +1,12 @@
 import api from "@/auth/api";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native"; // Import navigation
+import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function CombinedBlueprintScreen() {
-  const navigation = useNavigation(); // Initialize navigation
+  const navigation = useNavigation();
   const [activePlan, setActivePlan] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,10 +29,15 @@ export default function CombinedBlueprintScreen() {
     try {
       const res = await api.get("/user/get-plan");
       const rawData = res.data.plan;
+      if (!rawData) {
+        setActivePlan(null);
+        return;
+      }
       const data = typeof rawData === "string" ? JSON.parse(rawData) : rawData;
       setActivePlan({ ...data, createdAt: res.data.createdAt });
     } catch (err) {
       console.error("Plan Fetch error:", err);
+      setActivePlan(null);
     }
   };
 
@@ -49,8 +54,6 @@ export default function CombinedBlueprintScreen() {
     useCallback(() => {
       if (route.params?.origin === "biobot") {
         prepare();
-
-        // Optional: Clear params so it doesn't reload every time you switch tabs
         navigation.setParams({ origin: null });
       }
     }, [route.params?.origin]),
@@ -78,94 +81,110 @@ export default function CombinedBlueprintScreen() {
   }
 
   const sections = activePlan?.plan || activePlan?.sections || activePlan?.optimizationPlan || [];
+  const hasBlueprint = sections.length > 0;
 
   return (
     <View style={{ flex: 1, backgroundColor: "#000" }}>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={{ paddingBottom: 120 }} // Extra padding for the FAB
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#a58fff" />}
-      >
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 120 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#a58fff" />}>
         {/* HEADER SECTION */}
         <View style={styles.header}>
           <View>
             <Text style={styles.title}>Performance</Text>
             <Text style={styles.titleGold}>Blueprint</Text>
           </View>
-          <View style={styles.statusPill}>
-            <View style={styles.pulseDot} />
-            <Text style={styles.statusText}>LIVE SYNC</Text>
-          </View>
-        </View>
-
-        {/* HORIZONTAL PULSE CARDS */}
-        <View style={styles.pulseSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.pulseTitle}>METABOLIC PULSE</Text>
-            <Text style={styles.pulseSubtitle}>BioTrack Logic</Text>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pulseScroll}>
-            {suggestions.map((item, i) => (
-              <View key={i} style={[styles.pulseCard]}>
-                <View style={styles.pulseCardHeader}>
-                  <View style={[styles.pulseIconBox, styles[`icon${item.type}`]]}>{getIcon(item.label, item.type)}</View>
-                  <View style={[styles.badge, styles[`badge${item.type}`]]}>
-                    <Text style={styles.badgeText}>{item.type.toUpperCase()}</Text>
-                  </View>
-                </View>
-                <Text style={styles.pulseLabel}>{item.label}</Text>
-                <Text numberOfLines={2} style={styles.pulseMsg}>
-                  {item.message}
-                </Text>
-                <View style={styles.pulseTipBox}>
-                  <Text style={styles.pulseTipText}>{item.cta}</Text>
-                </View>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* TIMELINE SECTION */}
-        <View style={styles.timelineContainer}>
-          <Text style={styles.timelineTitle}>DAILY PROTOCOL</Text>
-          {sections.length === 0 ? (
-            <Text style={styles.emptyText}>No active blueprint found.</Text>
-          ) : (
-            sections.map((section, idx) => (
-              <View key={idx} style={styles.timelineItem}>
-                <View style={styles.markerContainer}>
-                  <View style={styles.markerNode} />
-                  {idx !== sections.length - 1 && <View style={styles.markerLine} />}
-                </View>
-                <View style={styles.card}>
-                  <View style={styles.timeRow}>
-                    <Feather name="clock" size={14} color="#a58fff" />
-                    <Text style={styles.sectionHeading}>{section.heading || section.timeBlock || "Phase " + (idx + 1)}</Text>
-                  </View>
-                  <View style={styles.actionList}>
-                    {(section.actions || section.Actions || []).map((action, aIdx) => (
-                      <View key={aIdx} style={styles.actionItem}>
-                        <View style={styles.bullet} />
-                        <Text style={styles.actionText}>{typeof action === "object" ? action.Description || action.task : action}</Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              </View>
-            ))
+          {hasBlueprint && (
+            <View style={styles.statusPill}>
+              <View style={styles.pulseDot} />
+              <Text style={styles.statusText}>LIVE SYNC</Text>
+            </View>
           )}
         </View>
+
+        {!hasBlueprint ? (
+          /* EMPTY STATE */
+          <View style={styles.emptyContainer}>
+            <View style={styles.emptyIconCircle}>
+              <MaterialCommunityIcons name="clipboard-text-search-outline" size={40} color="#a58fff" />
+            </View>
+            <Text style={styles.emptyTitle}>No Protocol Found</Text>
+            <Text style={styles.emptyDesc}>Your personalized performance blueprint hasn't been generated yet. Talk to BioBot to analyze your biomarkers.</Text>
+            <TouchableOpacity style={styles.ctaButton} onPress={() => navigation.navigate("biobot")}>
+              <Text style={styles.ctaButtonText}>GENERATE WITH BIOBOT</Text>
+              <Feather name="arrow-right" size={16} color="#000" />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          /* ACTIVE BLUEPRINT CONTENT */
+          <>
+            {/* HORIZONTAL PULSE CARDS */}
+            <View style={styles.pulseSection}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.pulseTitle}>METABOLIC PULSE</Text>
+                <Text style={styles.pulseSubtitle}>BioTrack Logic</Text>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pulseScroll}>
+                {suggestions.map((item, i) => {
+                  // 1. Capitalize the first letter (e.g., 'success' -> 'Success')
+                  const typeKey = item.type.charAt(0).toUpperCase() + item.type.slice(1).toLowerCase();
+
+                  return (
+                    <View key={i} style={[styles.pulseCard]}>
+                      <View style={styles.pulseCardHeader}>
+                        <View style={[styles.pulseIconBox, styles[`icon${typeKey}`]]}>{getIcon(item.label, item.type)}</View>
+                        <View style={[styles.badge, styles[`badge${typeKey}`]]}>
+                          <Text style={styles.badgeText}>{item.type.toUpperCase()}</Text>
+                        </View>
+                      </View>
+                      <Text style={styles.pulseLabel}>{item.label}</Text>
+                      <Text numberOfLines={2} style={styles.pulseMsg}>
+                        {item.message}
+                      </Text>
+                      <View style={styles.pulseTipBox}>
+                        <Text style={styles.pulseTipText}>{item.cta}</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </ScrollView>
+            </View>
+
+            {/* TIMELINE SECTION */}
+            <View style={styles.timelineContainer}>
+              <Text style={styles.timelineTitle}>DAILY PROTOCOL</Text>
+              {sections.map((section, idx) => (
+                <View key={idx} style={styles.timelineItem}>
+                  <View style={styles.markerContainer}>
+                    <View style={styles.markerNode} />
+                    {idx !== sections.length - 1 && <View style={styles.markerLine} />}
+                  </View>
+                  <View style={styles.card}>
+                    <View style={styles.timeRow}>
+                      <Feather name="clock" size={14} color="#a58fff" />
+                      <Text style={styles.sectionHeading}>{section.heading || section.timeBlock || "Phase " + (idx + 1)}</Text>
+                    </View>
+                    <View style={styles.actionList}>
+                      {(section.actions || section.Actions || []).map((action, aIdx) => (
+                        <View key={aIdx} style={styles.actionItem}>
+                          <View style={styles.bullet} />
+                          <Text style={styles.actionText}>{typeof action === "object" ? action.Description || action.task : action}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
       </ScrollView>
 
-      {/* FLOATING ACTION BUTTON */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => navigation.navigate("biobot")} // Ensure 'BioBot' matches your route name
-        activeOpacity={0.9}
-      >
-        <Ionicons name="sparkles" size={24} color="#000" />
-        <MaterialCommunityIcons name="robot" size={20} color="#000" style={{ marginLeft: -4 }} />
-      </TouchableOpacity>
+      {/* FLOATING ACTION BUTTON - Only shows if blueprint exists */}
+      {hasBlueprint && (
+        <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate("biobot")} activeOpacity={0.9}>
+          <Ionicons name="sparkles" size={24} color="#000" />
+          <MaterialCommunityIcons name="robot" size={20} color="#000" style={{ marginLeft: -4 }} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -179,6 +198,14 @@ const styles = StyleSheet.create({
   statusPill: { flexDirection: "row", alignItems: "center", backgroundColor: "#111", paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20, borderWidth: 1, borderColor: "#222" },
   pulseDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#22c55e", marginRight: 8 },
   statusText: { color: "#fff", fontSize: 9, fontWeight: "800", letterSpacing: 1 },
+
+  // Empty State Styles
+  emptyContainer: { flex: 1, alignItems: "center", justifyContent: "center", marginTop: 80, paddingHorizontal: 40 },
+  emptyIconCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: "#111", justifyContent: "center", alignItems: "center", marginBottom: 20, borderWidth: 1, borderColor: "#222" },
+  emptyTitle: { color: "#FFF", fontSize: 20, fontWeight: "800", marginBottom: 10 },
+  emptyDesc: { color: "#666", fontSize: 14, textAlign: "center", lineHeight: 22, marginBottom: 30 },
+  ctaButton: { backgroundColor: "#a58fff", flexDirection: "row", alignItems: "center", paddingVertical: 15, paddingHorizontal: 25, borderRadius: 16, gap: 10 },
+  ctaButtonText: { color: "#000", fontWeight: "900", fontSize: 12, letterSpacing: 0.5 },
 
   // FAB Style
   fab: {
@@ -215,6 +242,13 @@ const styles = StyleSheet.create({
   pulseTipBox: { backgroundColor: "#111", padding: 8, borderRadius: 8 },
   pulseTipText: { color: "#a58fff", fontSize: 10, fontWeight: "600" },
 
+  badgeSuccess: { backgroundColor: "#22c55e" },
+  badgeWarning: { backgroundColor: "#f59e0b" },
+  badgeDanger: { backgroundColor: "#ef4444" },
+  iconSuccess: { backgroundColor: "rgba(34, 197, 94, 0.1)" },
+  iconWarning: { backgroundColor: "rgba(245, 158, 11, 0.1)" },
+  iconDanger: { backgroundColor: "rgba(239, 68, 68, 0.1)" },
+
   // Timeline Styles
   timelineContainer: { paddingHorizontal: 25 },
   timelineTitle: { color: "#FFF", fontSize: 12, fontWeight: "900", letterSpacing: 2, marginBottom: 20 },
@@ -229,5 +263,4 @@ const styles = StyleSheet.create({
   actionItem: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
   bullet: { width: 4, height: 4, borderRadius: 2, backgroundColor: "#a58fff", marginTop: 8 },
   actionText: { color: "#888", fontSize: 13, lineHeight: 18, flex: 1 },
-  emptyText: { color: "#444", textAlign: "center", marginTop: 50, fontSize: 14 },
 });

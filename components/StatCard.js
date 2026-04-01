@@ -6,12 +6,22 @@ export default function StatCard({ title, value, sub, icon, color = "#a58fff", s
   const safeSources = Array.isArray(sources) ? sources : [sources];
   const uniqueSources = [...new Set(safeSources.filter(Boolean))];
 
+  // Helper to get the correct icon for the source
+  const getSourceIcon = (source) => {
+    const s = source.toLowerCase();
+    if (s.includes("apple")) return "apple";
+    if (s.includes("google")) return "google";
+    if (s.includes("fitbit")) return "watch-variant"; // Fitbit icon
+    if (s.includes("oura")) return "ring"; // Oura icon
+    return "access-point"; // Fallback
+  };
+
   return (
     <View style={styles.card}>
       <View style={styles.sourcesRow}>
         {uniqueSources.map((s, idx) => (
           <View key={idx} style={styles.sourcePill}>
-            <MaterialCommunityIcons name={s.toLowerCase().includes("apple") ? "apple" : "google"} size={10} color="#666" />
+            <MaterialCommunityIcons name={getSourceIcon(s)} size={10} color={s.toLowerCase().includes("fitbit") ? "#00B2B2" : "#666"} />
           </View>
         ))}
       </View>
@@ -43,7 +53,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 8,
     right: 8,
-    gap: 4,
+    gap: 1,
   },
   sourcePill: {
     padding: 2,

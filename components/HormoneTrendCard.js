@@ -11,19 +11,20 @@ const CHART_WIDTH = SCREEN_WIDTH - 80;
 
 export default function HormoneTrendCard() {
   const { simulatedMarkers } = useSimulation();
-  const [active, setActive] = useState("all");
-
   const hormoneKeys = useMemo(() => Object.keys(hormoneTrends || {}), []);
 
-  const allChartData = useMemo(() => {
+  // Set default to the first hormone key (e.g., "testosterone") instead of "all"
+  const [active, setActive] = useState(hormoneKeys[0]);
+
+  const chartData = useMemo(() => {
     const dataMap = {};
     hormoneKeys.forEach((key) => {
       const h = hormoneTrends[key];
       const marker = simulatedMarkers.find((m) => m.id === key);
       const liveValue = marker ? marker.value : h.data[h.data.length - 1];
 
-      // Normalized logic for "All", raw for single
-      const points = active === "all" ? [...h.normalized.slice(0, 6), marker ? ((liveValue - marker.min) / (marker.max - marker.min)) * 100 : h.normalized[6]] : [...h.data.slice(0, 6), liveValue];
+      // Simplified logic: just handle the single view data
+      const points = [...h.data.slice(0, 6), liveValue];
 
       dataMap[key] = points.map((val, i) => ({
         timestamp: i,
@@ -31,17 +32,15 @@ export default function HormoneTrendCard() {
       }));
     });
     return dataMap;
-  }, [active, simulatedMarkers, hormoneKeys]);
+  }, [simulatedMarkers, hormoneKeys]);
 
-  const primaryData = useMemo(() => {
-    const key = active === "all" ? "trt" : active;
-    return allChartData[key] || [];
-  }, [active, allChartData]);
+  const activeData = useMemo(() => chartData[active] || [], [active, chartData]);
+  const activeConfig = hormoneTrends[active] || {};
 
   const latestValue = useMemo(() => {
-    if (primaryData.length === 0) return "--";
-    return primaryData[primaryData.length - 1].value.toFixed(0);
-  }, [primaryData]);
+    if (activeData.length === 0) return "--";
+    return activeData[activeData.length - 1].value.toFixed(0);
+  }, [activeData]);
 
   const handleToggle = (key) => {
     setActive(key);
@@ -50,27 +49,22 @@ export default function HormoneTrendCard() {
     }
   };
 
-  const activeConfig = hormoneTrends[active === "all" ? "trt" : active] || {};
-
   return (
     <View style={styles.card}>
-      <LineChart.Provider data={primaryData}>
+      <LineChart.Provider data={activeData}>
         <View style={styles.header}>
           <View>
             <Text style={styles.title}>HORMONE TRENDS</Text>
-            <Text style={styles.subtitle}>{active === "all" ? "OVERVIEW (NORMALIZED %)" : `${activeConfig.label} · ${activeConfig.unit}`}</Text>
+            <Text style={styles.subtitle}>{`${activeConfig.label} · ${activeConfig.unit}`}</Text>
           </View>
 
-          <View style={[styles.valBox, { backgroundColor: active === "all" ? "#a58fff" : activeConfig.color }]}>
-            {/* Base layer: Latest Value */}
+          <View style={[styles.valBox, { backgroundColor: activeConfig.color }]}>
             <Text style={styles.valText}>
               <LineChart.PriceText
                 precision={0}
                 format={({ value }) => {
                   "worklet";
-                  // If scrubbing, show scrubbed value. If not, show latestValue.
-                  const displayVal = value ? value : latestValue;
-                  return `${displayVal}${active === "all" ? "%" : ""}`;
+                  return value ? `${value}` : `${latestValue}`;
                 }}
               />
             </Text>
@@ -78,11 +72,8 @@ export default function HormoneTrendCard() {
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
-          <TouchableOpacity onPress={() => handleToggle("all")} style={[styles.chip, active === "all" && styles.chipActive]}>
-            <Text style={[styles.chipText, active === "all" && styles.chipTextActive]}>ALL</Text>
-          </TouchableOpacity>
           {hormoneKeys.map((key) => (
-            <TouchableOpacity key={key} onPress={() => handleToggle(key)} style={[styles.chip, active === key && { backgroundColor: hormoneTrends[key].color, borderColor: hormoneTrends[key].color }]}>
+            <TouchableOpacity key={key} onPress={() => handleToggle(key)} style={[styles.chip, active === key && { backgroundColor: activeConfig.color, borderColor: activeConfig.color }]}>
               <Text style={[styles.chipText, active === key && styles.chipTextActive]}>{hormoneTrends[key].label}</Text>
             </TouchableOpacity>
           ))}
@@ -90,27 +81,18 @@ export default function HormoneTrendCard() {
 
         <View style={styles.chartWrapper}>
           <LineChart height={120} width={CHART_WIDTH}>
-            {active === "all" ? (
-              hormoneKeys.map((key) => (
-                <LineChart.Path key={key} data={allChartData[key]} color={hormoneTrends[key].color} width={2}>
-                  <LineChart.Gradient color={hormoneTrends[key].color} opacity={0.2} />
-                </LineChart.Path>
-              ))
-            ) : (
-              <LineChart.Path color={activeConfig.color} width={3}>
-                <LineChart.Gradient color={activeConfig.color} opacity={0.4} />
-              </LineChart.Path>
-            )}
+            <LineChart.Path color={activeConfig.color} width={3}>
+              <LineChart.Gradient color={activeConfig.color} opacity={0.4} />
+            </LineChart.Path>
 
-            {/* Removing Crosshair and Tooltip for a cleaner look unless explicitly needed */}
-            <LineChart.CursorCrosshair color={active === "all" ? "#FFF" : activeConfig.color}>
-              <LineChart.Tooltip backgroundColor={active === "all" ? "#1A1A1A" : activeConfig.color} textStyle={{ color: "#FFF", fontWeight: "bold" }} />
+            <LineChart.CursorCrosshair color={activeConfig.color}>
+              <LineChart.Tooltip backgroundColor={activeConfig.color} textStyle={{ color: "#FFF", fontWeight: "bold" }} />
             </LineChart.CursorCrosshair>
           </LineChart>
 
           <View style={styles.labelRow}>
             {LABELS.map((l, i) => (
-              <Text key={l} style={[styles.label, i === 6 && styles.latestLabel]}>
+              <Text key={l} style={[styles.label, i === 6 && { color: activeConfig.color }]}>
                 {l === "Jul" ? "LATEST" : l.toUpperCase()}
               </Text>
             ))}
@@ -130,11 +112,9 @@ const styles = StyleSheet.create({
   valText: { color: "#000", fontWeight: "900", fontSize: 14 },
   filterScroll: { flexDirection: "row", marginBottom: 20 },
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 12, backgroundColor: "#111", marginRight: 8, borderWidth: 1, borderColor: "#222" },
-  chipActive: { backgroundColor: "#a58fff", borderColor: "#a58fff" },
   chipText: { color: "#666", fontSize: 10, fontWeight: "800" },
   chipTextActive: { color: "#000" },
   chartWrapper: { marginTop: 10, overflow: "hidden" },
   labelRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 10 },
   label: { color: "#333", fontSize: 9, fontWeight: "800" },
-  latestLabel: { color: "#a58fff" },
 });

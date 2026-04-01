@@ -1,15 +1,42 @@
 import api from "@/auth/api";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Animated from "react-native-reanimated";
 
 export default function BioBotScreen() {
   const navigation = useNavigation(); // Hook initialization
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
   const [isSaved, setIsSaved] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    try {
+      // 1. Fetching metabolic, AI, AND the merged activity data
+      const [statusRes, activityRes] = await Promise.all([
+        api.get("/devices/status"),
+        api.get("/activity/merged", { params: { days: 1, mode: "smart" } }), // Just need today for the score
+      ]);
+
+      const hasNoDevices = !statusRes.data.apple && !statusRes.data.googlefit && !statusRes.data.dexcom && !statusRes.data.fitbit && !statusRes.data.oura;
+      const hasNoData = !activityRes.data || activityRes.data.length === 0;
+
+      setShowOnboarding(hasNoDevices || hasNoData);
+    } catch (err) {
+      console.error("Failed to fetch health insights", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData]),
+  );
 
   const generateBlueprint = async () => {
     setLoading(true);
@@ -72,6 +99,28 @@ export default function BioBotScreen() {
 
   return (
     <View style={styles.container}>
+      {/* ONBOARDING MODAL */}
+      <Modal visible={showOnboarding} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Animated.View style={styles.modalIconCircle}>
+              <MaterialCommunityIcons name="access-point-network" size={42} color="#a58fff" />
+            </Animated.View>
+            <Text style={styles.modalTitle}>LINK REQUIRED</Text>
+            <Text style={styles.modalSub}>Connect your Apple Health, Google Fit, Fitbit, or Oura Ring to begin biometric data synthesis.</Text>
+            <TouchableOpacity
+              style={styles.modalBtn}
+              onPress={() => {
+                setShowOnboarding(false);
+                router.push("/(tabs)/profile");
+              }}
+            >
+              <Text style={styles.modalBtnText}>INITIALIZE BIOMETRIC NODE</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       {/* HEADER */}
       <View style={styles.header}>
         <View>
@@ -204,4 +253,24 @@ const styles = StyleSheet.create({
   resetBtnText: { color: "#444", fontWeight: "700", fontSize: 12, textTransform: "uppercase" },
   loadingBox: { marginTop: 100, alignItems: "center" },
   loadingText: { color: "#a58fff", fontSize: 10, fontWeight: "800", marginTop: 25, letterSpacing: 2 },
+
+  modalOverlay: { flex: 1, backgroundColor: "#000", justifyContent: "center", alignItems: "center", padding: 25 },
+  modalContent: { backgroundColor: "#080808", padding: 40, borderRadius: 40, alignItems: "center", borderWidth: 1, borderColor: "#a58fff33", width: "100%" },
+  modalIconCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "#a58fff10",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 30,
+    borderStyle: "dashed",
+    borderWidth: 1,
+    borderColor: "#a58fff",
+  },
+  modalTitle: { color: "#fff", fontSize: 24, fontWeight: "900", letterSpacing: 2, marginBottom: 12 },
+  modalSub: { color: "#666", textAlign: "center", fontSize: 14, lineHeight: 22, marginBottom: 35, fontWeight: "500" },
+  modalBtn: { backgroundColor: "#a58fff", paddingVertical: 18, borderRadius: 20, width: "100%", alignItems: "center" },
+  modalBtnText: { color: "#000", fontWeight: "900", fontSize: 13, letterSpacing: 1 },
+  lockText: { color: "#333", fontSize: 9, fontWeight: "800", marginTop: 20, letterSpacing: 1 },
 });
